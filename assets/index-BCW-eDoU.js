@@ -299,7 +299,7 @@ if detect_crash(frame):
     save_clip(list(buffer))
     print("⚠️ Accident detected! Clip saved.")
     send_email_alert("Accident detected!", "See attached video.")
-`}),d.jsx("h3",{children:"Result"}),d.jsxs("ul",{children:[d.jsx("li",{children:"Near real-time crash detection on any live video stream"}),d.jsx("li",{children:"Instant alerts and automatic clip saving for rapid incident review"}),d.jsx("li",{children:"Efficient enough for edge deployment (Raspberry Pi, Jetson Nano, NVR, etc.)"})]})]}),d.jsx("button",{className:"back-btn",onClick:()=>o("/"),style:{background:"none",color:"#00ff41",border:"none",fontSize:"1.1rem",cursor:"pointer",marginTop:"2rem",textDecoration:"underline"},children:"← Back to Portfolio"})]})}const p1="/Anish_protfolio/assets/Photo-Dz207hdF.jpg";/**
+`}),d.jsx("h3",{children:"Result"}),d.jsxs("ul",{children:[d.jsx("li",{children:"Near real-time crash detection on any live video stream"}),d.jsx("li",{children:"Instant alerts and automatic clip saving for rapid incident review"}),d.jsx("li",{children:"Efficient enough for edge deployment (Raspberry Pi, Jetson Nano, NVR, etc.)"})]})]}),d.jsx("button",{className:"back-btn",onClick:()=>o("/"),style:{background:"none",color:"#00ff41",border:"none",fontSize:"1.1rem",cursor:"pointer",marginTop:"2rem",textDecoration:"underline"},children:"← Back to Portfolio"})]})}const p1="/Anish_portfolio/assets/Photo-Dz207hdF.jpg";/**
  * @license lucide-react v0.519.0 - ISC
  *
  * This source code is licensed under the ISC license.
