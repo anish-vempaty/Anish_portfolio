@@ -36,6 +36,17 @@ export default function Resume({ show }) {
         </div>
         <ol className="timeline-list">
           <li className="timeline-item">
+            <h4 className="h4 timeline-item-title">Data Scientist, Delta Rising Foundation</h4>
+            <span>Aug 2025 – Present</span>
+            <p className="timeline-text">
+              • Developed AI Models (Random Forest, XGBoost) to accurately quantify per-tree carbon sequestration, supporting proposals and donor engagement.<br />
+              • Engineered a proprietary forest carbon dataset by combining LiDAR scans with soil and climate data, enabling scalable carbon modeling.<br />
+              • Processed 3D laser scans to extract tree height, diameter, and volume, converting raw data into actionable forest metrics.<br />
+              • Designed robust data pipelines (pandas, GeoPandas, Shapely, PDAL) for scalable and reproducible AI workflows.<br />
+              • Integrated ecology and forestry research findings to refine models, boosting precision and scientific legitimacy.
+            </p>
+          </li>
+          <li className="timeline-item">
             <h4 className="h4 timeline-item-title">Data Engineering Intern, SRMIST</h4>
             <span>Chennai, India | Jun 2022 – Dec 2022</span>
             <p className="timeline-text">

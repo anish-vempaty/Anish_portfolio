@@ -11,6 +11,12 @@ import PerspectiveVR from './projectpages/PerspectiveVR';
 import Uberlytics from './projectpages/Uberlytics';
 import MicelloIntegrations from './projectpages/MicelloIntegrations';
 import AICrash from './projectpages/AICrash';
+import CustomCybersecurityLLM from './projectpages/CustomCybersecurityLLM';
+import QuantumPasswordManager from './projectpages/QuantumPasswordManager';
+import RealTimeVoiceCloning from './projectpages/RealTimeVoiceCloning';
+import AIHedgeFund from './projectpages/AIHedgeFund';
+import AINotesApp from './projectpages/AINotesApp';
+import JobSeekAgent from './projectpages/JobSeekAgent';
 
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
@@ -56,6 +62,12 @@ export default function App() {
           <Route path="/projects/uberlytics" element={<Uberlytics />} />
           <Route path="/projects/micello-integrations" element={<MicelloIntegrations />} />
           <Route path="/projects/ai-crash" element={<AICrash />} />
+          <Route path="/projects/custom-cybersecurity-llm" element={<CustomCybersecurityLLM />} />
+          <Route path="/projects/quantum-password-manager" element={<QuantumPasswordManager />} />
+          <Route path="/projects/real-time-voice-cloning" element={<RealTimeVoiceCloning />} />
+          <Route path="/projects/ai-hedge-fund" element={<AIHedgeFund />} />
+          <Route path="/projects/ai-notes-app" element={<AINotesApp />} />
+          <Route path="/projects/jobseek-agent" element={<JobSeekAgent />} />
         </Routes>
       )}
     </Router>

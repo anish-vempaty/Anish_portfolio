@@ -1,0 +1,193 @@
+{
+  "nodes": [
+    {
+      "id": "dist/index.html",
+      "position": {
+        "x": 8.5,
+        "y": -34.5
+      }
+    },
+    {
+      "id": "index.html",
+      "position": {
+        "x": 12.0,
+        "y": 26.0
+      }
+    },
+    {
+      "id": "src/App.jsx",
+      "position": {
+        "x": 106.0,
+        "y": -4.0
+      }
+    },
+    {
+      "id": "src/components/About.jsx",
+      "position": {
+        "x": -116.0,
+        "y": -17.0
+      }
+    },
+    {
+      "id": "src/components/Contact.jsx",
+      "position": {
+        "x": 102.5,
+        "y": 81.0
+      }
+    },
+    {
+      "id": "src/components/MatrixMorph.jsx",
+      "position": {
+        "x": 206.0,
+        "y": 7.5
+      }
+    },
+    {
+      "id": "src/components/Navbar.jsx",
+      "position": {
+        "x": 224.0,
+        "y": -52.5
+      }
+    },
+    {
+      "id": "src/components/Portfolio.jsx",
+      "position": {
+        "x": 287.5,
+        "y": 91.5
+      }
+    },
+    {
+      "id": "src/components/Resume.jsx",
+      "position": {
+        "x": -234.0,
+        "y": 43.0
+      }
+    },
+    {
+      "id": "src/components/Sidebar.jsx",
+      "position": {
+        "x": -177.0,
+        "y": 120.5
+      }
+    },
+    {
+      "id": "src/main.jsx",
+      "position": {
+        "x": 162.0,
+        "y": 192.0
+      }
+    },
+    {
+      "id": "src/projectpages/AIChatAssistantApp.jsx",
+      "position": {
+        "x": 5.5,
+        "y": 185.5
+      }
+    },
+    {
+      "id": "src/projectpages/AICodingMentor.jsx",
+      "position": {
+        "x": -142.5,
+        "y": 165.1999313354492
+      }
+    },
+    {
+      "id": "src/projectpages/AICrash.jsx",
+      "position": {
+        "x": 85.0,
+        "y": 98.0
+      }
+    },
+    {
+      "id": "src/projectpages/AIHedgeFund.jsx",
+      "position": {
+        "x": -15.5,
+        "y": 89.0
+      }
+    },
+    {
+      "id": "src/projectpages/AINotesApp.jsx",
+      "position": {
+        "x": -164.0,
+        "y": 58.0
+      }
+    },
+    {
+      "id": "src/projectpages/CustomCybersecurityLLM.jsx",
+      "position": {
+        "x": -77.0,
+        "y": -42.0
+      }
+    },
+    {
+      "id": "src/projectpages/DeepFakeDetection.jsx",
+      "position": {
+        "x": 86.5,
+        "y": -43.5
+      }
+    },
+    {
+      "id": "src/projectpages/EdgeDeviceThreatDetection.jsx",
+      "position": {
+        "x": 219.5,
+        "y": 41.0
+      }
+    },
+    {
+      "id": "src/projectpages/JobSeekAgent.jsx",
+      "position": {
+        "x": 166.0,
+        "y": 94.0
+      }
+    },
+    {
+      "id": "src/projectpages/MicelloIntegrations.jsx",
+      "position": {
+        "x": 17.5,
+        "y": 123.0
+      }
+    },
+    {
+      "id": "src/projectpages/PerspectiveVR.jsx",
+      "position": {
+        "x": -161.0,
+        "y": 90.5
+      }
+    },
+    {
+      "id": "src/projectpages/QuantumPasswordManager.jsx",
+      "position": {
+        "x": 215.0,
+        "y": -17.0
+      }
+    },
+    {
+      "id": "src/projectpages/RealTimeVoiceCloning.jsx",
+      "position": {
+        "x": -193.5,
+        "y": 3.0
+      }
+    },
+    {
+      "id": "src/projectpages/ThreeDReconstruction.jsx",
+      "position": {
+        "x": 184.0,
+        "y": -79.0
+      }
+    },
+    {
+      "id": "src/projectpages/Uberlytics.jsx",
+      "position": {
+        "x": -184.0,
+        "y": -87.5
+      }
+    },
+    {
+      "id": "src/projectpages/Vibe.jsx",
+      "position": {
+        "x": -9.5,
+        "y": -85.0
+      }
+    }
+  ]
+}
