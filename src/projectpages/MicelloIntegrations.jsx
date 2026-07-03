@@ -81,7 +81,7 @@ function fetchUberEstimate(lat, lon) {
 function fetchFlightStatusWidget(gate) {
   // Get flight number for the selected gate/location
   const flightId = getFlightForGate(gate);
-  fetch(\`https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/\${flightId}\?appId=XXX&appKey=YYY\`)
+  fetch(\`https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/\${flightId}?appId=XXX&appKey=YYY\`)
     .then(res => res.json())
     .then(data => updateFlightWidget(data.flightStatuses[0]));
 }

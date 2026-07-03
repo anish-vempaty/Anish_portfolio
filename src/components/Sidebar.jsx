@@ -76,7 +76,7 @@ export default function Sidebar() {
         <div className="separator"></div>
 
         <div className="sidebar-resume">
-          <a href="Anish_resume_V5.pdf" download className="resume-btn">
+          <a href="/Anish%20Vempaty_Software%20Development%20Engineer.pdf" download="Anish_Vempaty_Resume.pdf" className="resume-btn">
             Download CV
           </a>
         </div>

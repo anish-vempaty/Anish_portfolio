@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accurate 3D VA Logo</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #e0e8f5;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+    <script>
+        // Setup Scene and Orthographic Camera (crucial for the flat, isometric look)
+        const scene = new THREE.Scene();
+        const aspect = window.innerWidth / window.innerHeight;
+        const frustumSize = 40;
+        const camera = new THREE.OrthographicCamera(frustumSize * aspect / -2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / -2, 0.1, 1000);
+        camera.position.z = 50;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(0, 0, 10);
+        scene.add(directionalLight);
+
+        // Materials matching the reference colors
+        const materials = [
+            new THREE.MeshLambertMaterial({ color: 0xcfd9eb }), // Front face
+            new THREE.MeshLambertMaterial({ color: 0x0a1128 })  // Extruded sides
+        ];
+
+        // 1. Draw the highly slanted 2D shapes based on the reference image
+        const vShape = new THREE.Shape();
+        vShape.moveTo(-9, -3);
+        vShape.lineTo(-2, 8);
+        vShape.lineTo(3, 9);
+        vShape.lineTo(0, 1);
+        vShape.lineTo(6, 7);
+        vShape.lineTo(10, 8);
+        vShape.lineTo(-3, -4);
+        vShape.moveTo(-9, -3); // Close V
+
+        const aShape = new THREE.Shape();
+        aShape.moveTo(9, 5);
+        aShape.lineTo(16, 7);
+        aShape.lineTo(7, -6);
+        aShape.lineTo(3, -7);
+        aShape.lineTo(6, -2);
+        aShape.lineTo(2, -3);
+        aShape.lineTo(0, -6);
+        aShape.lineTo(-4, -7);
+        aShape.moveTo(9, 5); // Close A
+
+        // A Hole (Drawn clockwise to cut out)
+        const aHole = new THREE.Path();
+        aHole.moveTo(8, 2);
+        aHole.lineTo(3, -1.5);
+        aHole.lineTo(5, -1);
+        aHole.lineTo(8, 2);
+        aShape.holes.push(aHole);
+
+        // 2. Extrude the shapes
+        const extrudeSettings = {
+            depth: 5,
+            bevelEnabled: false
+        };
+
+        const vGeo = new THREE.ExtrudeGeometry(vShape, extrudeSettings);
+        const aGeo = new THREE.ExtrudeGeometry(aShape, extrudeSettings);
+
+        // 3. Apply a Shear Matrix to force the depth down and left
+        const shearMatrix = new THREE.Matrix4().set(
+            1, 0, -0.6, 0,  // Skew X based on Z
+            0, 1, -0.5, 0,  // Skew Y based on Z
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+
+        vGeo.applyMatrix4(shearMatrix);
+        aGeo.applyMatrix4(shearMatrix);
+
+        // 4. Build and center the group
+        const logoGroup = new THREE.Group();
+        logoGroup.add(new THREE.Mesh(vGeo, materials));
+        logoGroup.add(new THREE.Mesh(aGeo, materials));
+
+        logoGroup.position.set(-3.5, -1, 0); // Center in viewport
+        scene.add(logoGroup);
+
+        // 5. Interactive tracking and Glitch logic
+        let mouseX = 0;
+        let mouseY = 0;
+        let isGlitching = false;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        function triggerGlitch() {
+            isGlitching = true;
+
+            // Visual distortion
+            materials[0].color.setHex(0xffffff);
+            logoGroup.position.x = -3.5 + (Math.random() - 0.5) * 2;
+            logoGroup.scale.set(1.05, 0.95, 1.1);
+
+            setTimeout(() => {
+                // Reset
+                isGlitching = false;
+                materials[0].color.setHex(0xcfd9eb);
+                logoGroup.position.set(-3.5, -1, 0);
+                logoGroup.scale.set(1, 1, 1);
+            }, 120);
+
+            setTimeout(triggerGlitch, Math.random() * 3000 + 1500);
+        }
+
+        setTimeout(triggerGlitch, 1500);
+
+        // 6. Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (!isGlitching) {
+                // Subtle rotation following mouse
+                logoGroup.rotation.x += (mouseY * 0.2 - logoGroup.rotation.x) * 0.1;
+                logoGroup.rotation.y += (mouseX * 0.2 - logoGroup.rotation.y) * 0.1;
+            } else {
+                // Erratic snapping during glitch
+                logoGroup.rotation.x += (Math.random() - 0.5) * 0.4;
+                logoGroup.rotation.y += (Math.random() - 0.5) * 0.4;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle resizing for Orthographic Camera
+        window.addEventListener('resize', () => {
+            const newAspect = window.innerWidth / window.innerHeight;
+            camera.left = -frustumSize * newAspect / 2;
+            camera.right = frustumSize * newAspect / 2;
+            camera.top = frustumSize / 2;
+            camera.bottom = -frustumSize / 2;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>

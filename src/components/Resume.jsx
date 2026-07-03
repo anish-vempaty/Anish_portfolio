@@ -36,41 +36,45 @@ export default function Resume({ show }) {
         </div>
         <ol className="timeline-list">
           <li className="timeline-item">
-            <h4 className="h4 timeline-item-title">Data Scientist, Delta Rising Foundation</h4>
-            <span>Aug 2025 – Present</span>
+            <h4 className="h4 timeline-item-title">Robotics Security & Operations Engineer, GreyOrange / ROBO</h4>
+            <span>Atlanta, GA | Feb 2026 – Present</span>
             <p className="timeline-text">
-              • Developed AI Models (Random Forest, XGBoost) to accurately quantify per-tree carbon sequestration, supporting proposals and donor engagement.<br />
-              • Engineered a proprietary forest carbon dataset by combining LiDAR scans with soil and climate data, enabling scalable carbon modeling.<br />
-              • Processed 3D laser scans to extract tree height, diameter, and volume, converting raw data into actionable forest metrics.<br />
-              • Designed robust data pipelines (pandas, GeoPandas, Shapely, PDAL) for scalable and reproducible AI workflows.<br />
-              • Integrated ecology and forestry research findings to refine models, boosting precision and scientific legitimacy.
+              • Conduct network penetration testing and implement regression-testing automation frameworks using Bash and Python to secure robot-to-cloud communication and prevent unauthorized access to AMR fleets.<br />
+              • Vulnerability management: review and debug robot code in Python, Java, and C++ to identify security flaws and ensure robust, bug-free software deployment.<br />
+              • AI-driven operations: utilize AI-assisted analytics and telemetry logs to detect system anomalies and forecast operational risks, ensuring high reliability at the SAMs ATL site.<br />
+              • Develop backend utilities and scripts using Bash to automate diagnostics, integrate robotic systems with Warehouse Management Systems, and build CI/CD pipelines for continuous deployment.
             </p>
           </li>
           <li className="timeline-item">
-            <h4 className="h4 timeline-item-title">Data Engineering Intern, SRMIST</h4>
+            <h4 className="h4 timeline-item-title">Data Scientist & Team Co-Leader, Delta Rising Foundation</h4>
+            <span>Remote | Aug 2025 – Feb 2026</span>
+            <p className="timeline-text">
+              • Co-led a 6-member team to quantify per-plot Giant Sequoia carbon sequestration, engineering proprietary datasets with Google Earth Engine and multi-source satellite imagery — the foundation for accurate carbon estimates across the study area.<br />
+              • Developed robust ML models using TensorFlow and Scikit-learn and built an interactive C# frontend that let users visualize predictions and explore carbon estimation tools.
+            </p>
+          </li>
+          <li className="timeline-item">
+            <h4 className="h4 timeline-item-title">Data Engineer Intern, SRMIST</h4>
             <span>Chennai, India | Jun 2022 – Dec 2022</span>
             <p className="timeline-text">
-              • Developed automated web scraping tools to collect alumni data (Name, Phone, Address) from LinkedIn for graduates (1985–2015).<br />
-              • Designed ETL pipeline to clean, extract, and organize large datasets for institutional outreach.<br />
-              • Enhanced data collection efficiency by implementing robust error handling and batch processing.
+              • Automated alumni data collection using Python/Selenium orchestrated through SLURM job scheduling, processing 30+ years of records.<br />
+              • Designed and implemented ETL pipelines in Python (Pandas, SQL) deployed via AWS CDK with CI/CD, increasing dataset accuracy and reliability for analytics.
             </p>
           </li>
           <li className="timeline-item">
-            <h4 className="h4 timeline-item-title">Cybersecurity Engineer Intern, Foxmula Corp</h4>
+            <h4 className="h4 timeline-item-title">Cybersecurity Intern, Foxmula Corp</h4>
             <span>Bengaluru, India | Dec 2020 – Feb 2021</span>
             <p className="timeline-text">
-              • Developed Confidential Image Communication System (Python, AES, chaos encryption).<br />
-              • Led a team of 4; improved pipeline efficiency by 10%.<br />
-              • Upgraded processing with multithreading and efficient I/O.
+              • Developed AES + chaos-based image encryption reducing runtime by 10%.<br />
+              • Led a 4-member team improving throughput and performance by 5%.
             </p>
           </li>
           <li className="timeline-item">
             <h4 className="h4 timeline-item-title">AI Engineer Intern, Verzeo Tech</h4>
             <span>Bengaluru, India | Apr 2020 – Jun 2020</span>
             <p className="timeline-text">
-              • Real-time Traffic/Pedestrian Detection using Python, OpenCV, YOLOv3.<br />
-              • Deployed Flask dashboard; improved detection accuracy to 93%.<br />
-              • Implemented async logging to reduce downtime.
+              • Built a YOLOv3-based accident detection app improving accuracy from 84% to 93%.<br />
+              • Designed a Flask dashboard with async logging to ensure high system uptime.
             </p>
           </li>
         </ol>

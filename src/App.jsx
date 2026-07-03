@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import EdgeDeviceThreatDetection from './projectpages/EdgeDeviceThreatDetection';
@@ -17,6 +17,7 @@ import RealTimeVoiceCloning from './projectpages/RealTimeVoiceCloning';
 import AIHedgeFund from './projectpages/AIHedgeFund';
 import AINotesApp from './projectpages/AINotesApp';
 import JobSeekAgent from './projectpages/JobSeekAgent';
+import RiscVC910 from './projectpages/RiscVC910';
 
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
@@ -25,10 +26,18 @@ import Resume from './components/Resume';
 import Portfolio from './components/Portfolio';
 import Contact from './components/Contact';
 import MatrixMorph from './components/MatrixMorph'; // <-- Add this import!
+import DebugPanel from './components/DebugPanel';
 import './index.css';
 
+const BackgroundAV = lazy(() => import('./components/BackgroundAV'));
+
+const initialTab = () => {
+  const tab = new URLSearchParams(window.location.search).get('tab');
+  return ['about', 'resume', 'portfolio', 'contact'].includes(tab) ? tab : 'about';
+};
+
 export default function App() {
-  const [activePage, setActivePage] = useState('about');
+  const [activePage, setActivePage] = useState(initialTab);
   const [showMatrixMorph, setShowMatrixMorph] = useState(true);
 
   return (
@@ -36,6 +45,11 @@ export default function App() {
       {showMatrixMorph ? (
         <MatrixMorph onFinish={() => setShowMatrixMorph(false)} onSkip={() => setShowMatrixMorph(false)} />
       ) : (
+        <>
+        <Suspense fallback={null}>
+          <BackgroundAV />
+        </Suspense>
+        <DebugPanel />
         <Routes>
           <Route
             path="/"
@@ -68,7 +82,9 @@ export default function App() {
           <Route path="/projects/ai-hedge-fund" element={<AIHedgeFund />} />
           <Route path="/projects/ai-notes-app" element={<AINotesApp />} />
           <Route path="/projects/jobseek-agent" element={<JobSeekAgent />} />
+          <Route path="/projects/riscv-c910" element={<RiscVC910 />} />
         </Routes>
+        </>
       )}
     </Router>
   );

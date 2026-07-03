@@ -61,7 +61,7 @@ export default function Contact({ show }) {
             </div>
             <div className="contact-info">
               <p className="contact-title">Resume</p>
-              <a href="/Anish_resume_V5.pdf" className="contact-link" target="_blank" rel="noopener noreferrer">
+              <a href="/Anish%20Vempaty_Software%20Development%20Engineer.pdf" className="contact-link" target="_blank" rel="noopener noreferrer">
                 Download Resume
               </a>
             </div>
