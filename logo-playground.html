@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AV Logo Playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&display=swap');
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      background:
+        radial-gradient(1100px 600px at 75% -10%, rgba(0, 255, 65, 0.07) 0%, transparent 60%),
+        radial-gradient(900px 500px at 10% 110%, rgba(187, 0, 255, 0.05) 0%, transparent 60%),
+        #0c0f0a;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .mono {
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* Custom scrollbar for control panel */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+</head>
+
+<body class="relative min-h-screen text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-300">
+
+  <!-- Left Side info overlay -->
+  <div class="absolute left-6 top-6 z-10 pointer-events-none">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <h1 class="text-sm uppercase tracking-widest text-emerald-400 font-semibold mono">Interactive Logo Workspace</h1>
+    </div>
+  </div>
+
+  <div id="hint" class="absolute left-6 bottom-6 z-10 text-slate-400 text-xs mono pointer-events-none hidden md:block">
+    MOVE MOUSE TO TILT LOGO &nbsp;·&nbsp; PRESS [G] FOR GLITCH BURST
+  </div>
+
+  <!-- Right Side Interactive Control Drawer -->
+  <div class="absolute right-6 top-6 bottom-6 w-80 z-10 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 flex flex-col justify-between overflow-y-auto pointer-events-auto shadow-2xl">
+    <div>
+      <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+        <h2 class="text-lg font-bold tracking-tight">Proportions & Design</h2>
+        <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[10px] rounded border border-emerald-500/20 font-semibold mono">v2.1</span>
+      </div>
+
+      <!-- Geometry Sliders -->
+      <div class="space-y-5">
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-2 mono">
+            <span>EMBLEM SCALE</span>
+            <span id="scale-val">1.10</span>
+          </div>
+          <input id="scale" type="range" min="0.5" max="1.6" step="0.05" value="1.1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-400">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-2 mono">
+            <span>LETTER DEPTH</span>
+            <span id="letter-depth-val">4.00</span>
+          </div>
+          <input id="letter-depth" type="range" min="1.0" max="8.0" step="0.2" value="4.0" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-400">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-2 mono">
+            <span>RING DEPTH</span>
+            <span id="ring-depth-val">2.50</span>
+          </div>
+          <input id="ring-depth" type="range" min="0.5" max="6.0" step="0.1" value="2.5" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-400">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-2 mono">
+            <span>TILT SENSITIVITY</span>
+            <span id="tilt-val">0.25</span>
+          </div>
+          <input id="tilt" type="range" min="0.0" max="0.8" step="0.05" value="0.25" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-400">
+        </div>
+      </div>
+
+      <!-- Color Pickers -->
+      <div class="border-t border-white/10 pt-6 mt-6 space-y-4">
+        <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold mono">Color Palette</h3>
+        
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-slate-400 mb-1">A Stroke (Green)</label>
+            <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded p-1.5">
+              <input id="color-green" type="color" value="#00ff41" class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer">
+              <span class="mono text-[11px] uppercase">#00ff41</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">V Stroke (Purple)</label>
+            <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded p-1.5">
+              <input id="color-purple" type="color" value="#d24dff" class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer">
+              <span class="mono text-[11px] uppercase">#d24dff</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Presets Section -->
+      <div class="border-t border-white/10 pt-6 mt-6 space-y-3">
+        <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold mono">Aesthetic Presets</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="applyPreset('sketch')" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded text-xs border border-white/5 text-left font-medium transition duration-200">Sketch Classic</button>
+          <button onclick="applyPreset('cyanide')" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded text-xs border border-white/5 text-left font-medium transition duration-200">Toxic Mint</button>
+          <button onclick="applyPreset('cyber')" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded text-xs border border-white/5 text-left font-medium transition duration-200">Retro Grid</button>
+          <button onclick="applyPreset('monochrome')" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded text-xs border border-white/5 text-left font-medium transition duration-200">Carbon & White</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="border-t border-white/10 pt-6 mt-6">
+      <button id="glitch-btn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs py-2.5 px-4 rounded-xl shadow-lg transition duration-200 active:scale-95 flex items-center justify-center gap-2 uppercase tracking-wider">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        Trigger Glitch (G)
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // ======================================================================
+    // ======================================================================
+    const CONFIG = {
+      green: 0x00ff41,        // A + outer ring edges
+      purple: 0xd24dff,       // V + inner ring edges
+      greenFace: 0x051a09,    // A front faces
+      greenSide: 0x010702,    // A extruded sides
+      purpleFace: 0x14041c,   // V front faces
+      purpleSide: 0x050107,   // V extruded sides
+
+      scale: 1.1,             // overall emblem size (ring ~fills viewport height at 1.1)
+      letterDepth: 4,         // extrusion depth of the letters
+      ringDepth: 2.5,         // extrusion depth of the ring
+      ringOuter: 15,          // ring radii
+      ringInner: 13.2,
+      lettersXOffset: -1.25,   // perfectly center-offsets the balanced 2D boundaries
+
+      mouseFollow: 0.25,      // how far the emblem tilts toward the cursor (radians-ish)
+      wobble: { x: 0.1, y: 0.14, speedX: 0.5, speedY: 0.35 }, // idle drift
+
+      glitch: {
+        firstAt: 2.5,         // seconds until the first burst
+        minInterval: 4,       // seconds between bursts
+        maxInterval: 8.5,
+        minDuration: 0.3,     // burst length in seconds
+        maxDuration: 0.6,
+        minIntensity: 0.4,    // shatter strength per sub-frame
+        maxIntensity: 1.0,
+        reseedEvery: [0.05, 0.12], // randomize mid-burst interval
+      },
+    };
+
+    // ======================================================================
+    // ======================================================================
+    // Rebuilt from scratch with exact 2.0 / -2.0 slopes and uniform thickness of 1.5 units:
+    
+    // 1. Triangular Apex "Λ" at the top of the A (Symmetrical & parallel)
+    const LAMBDA_POINTS = [
+      [-3.0, 7.5], [-2.0, 7.5],    // Outer flat top peak
+      [1.0, 1.5],                  // Outer bottom right corner (down-right with slope -2)
+      [-0.5, 1.5],                 // Inner bottom right corner (horizontal thickness of 1.5)
+      [-2.5, 5.5],                 // Inner apex crotch
+      [-4.5, 1.5],                 // Inner bottom left corner
+      [-6.0, 1.5]                  // Outer bottom left corner
+    ];
+
+    // 2. Left sloping leg bending into the horizontal crossbar "A" (Perfect grid matching)
+    const BAR_POINTS = [
+      [-7.0, -0.5],                // Outer left bend top
+      [3.5, -0.5],                 // Top-right tip of crossbar
+      [3.5, -2.5],                 // Bottom-right tip of crossbar
+      [-6.5, -2.5],                // Inner corner where leg meets bottom of bar
+      [-9.0, -7.5],                // Inner bottom-left foot
+      [-10.5, -7.5]                // Outer bottom-left foot (slope 2 down to foot)
+    ];
+
+    // 3. Stylized "V" (starts just below crossbar right tip, climbs up to outer ring edge)
+    const V_POINTS = [
+      [2.0, -3.5],                 // Outer top-left peak (perfectly aligned underneath the bar's right edge)
+      [3.5, -3.5],                 // Inner top-left peak
+      [4.5, -5.5],                 // Inner bottom crotch (exact slope convergence)
+      [11.5, 8.5],                 // Inner top-right climb
+      [13.0, 8.5],                 // Outer top-right climb
+      [4.5, -8.5]                  // Outer bottom apex
+    ];
+
+    // ======================================================================
+    // ======================================================================
+    const GLITCH_VERT = /* glsl */ `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position.xy, 0.0, 1.0);
+      }
+    `;
+
+    const GLITCH_FRAG = /* glsl */ `
+      uniform sampler2D tDiffuse;
+      uniform float uIntensity;
+      uniform float uSeed;
+      varying vec2 vUv;
+
+      float rand(vec2 co) {
+        return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+      }
+
+      void main() {
+        if (uIntensity < 0.001) {
+          gl_FragColor = texture2D(tDiffuse, vUv);
+          return;
+        }
+
+        vec2 uv = vUv;
+
+        // Band tearing displacement
+        float bandCount = mix(8.0, 32.0, rand(vec2(uSeed, 1.0)));
+        float band = floor(uv.y * bandCount);
+        float tear = step(0.6, rand(vec2(band, uSeed)));
+        uv.x += tear * (rand(vec2(band, uSeed + 1.2)) - 0.5) * 0.3 * uIntensity;
+
+        // Fine grid/block fragmentation
+        vec2 cell = floor(uv * vec2(12.0, 8.0));
+        float cellRand = rand(cell + uSeed);
+        if (cellRand > 0.8) {
+          uv += (vec2(rand(cell + uSeed + 1.0), rand(cell + uSeed + 2.0)) - 0.5) * 0.2 * uIntensity;
+        }
+
+        // Chromatic split
+        float shift = 0.015 * uIntensity;
+        vec4 cr = texture2D(tDiffuse, uv + vec2(shift, 0.0));
+        vec4 cg = texture2D(tDiffuse, uv);
+        vec4 cb = texture2D(tDiffuse, uv - vec2(shift, 0.0));
+        vec4 col = vec4(cr.r, cg.g, cb.b, max(cg.a, max(cr.a, cb.a)));
+
+        if (cellRand > 0.9) {
+          col.rgb = col.rgb.gbr;
+        }
+
+        gl_FragColor = col;
+      }
+    `;
+
+    // ======================================================================
+    // ======================================================================
+    const scene = new THREE.Scene();
+    const frustumSize = 40;
+    let aspect = window.innerWidth / window.innerHeight;
+    const camera = new THREE.OrthographicCamera(
+      (frustumSize * aspect) / -2, (frustumSize * aspect) / 2,
+      frustumSize / 2, frustumSize / -2, 0.1, 1000
+    );
+    camera.position.z = 50;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    renderer.setPixelRatio(pixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    keyLight.position.set(0, 5, 10);
+    scene.add(keyLight);
+
+    // Initialize materials
+    const greenFace = new THREE.MeshLambertMaterial({ color: CONFIG.greenFace });
+    const greenSide = new THREE.MeshLambertMaterial({ color: CONFIG.greenSide });
+    const purpleFace = new THREE.MeshLambertMaterial({ color: CONFIG.purpleFace });
+    const purpleSide = new THREE.MeshLambertMaterial({ color: CONFIG.purpleSide });
+    const greenEdge = new THREE.LineBasicMaterial({ color: CONFIG.green, transparent: true, opacity: 0.9 });
+    const purpleEdge = new THREE.LineBasicMaterial({ color: CONFIG.purple, transparent: true, opacity: 0.9 });
+
+    const shapeFrom = (pts) => {
+      const s = new THREE.Shape();
+      s.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) s.lineTo(pts[i][0], pts[i][1]);
+      s.closePath();
+      return s;
+    };
+
+    // The iconic oblique isometric shear projection matrix from the workspace site
+    const shearMatrix = new THREE.Matrix4().set(
+      1, 0, -0.6, 0,
+      0, 1, -0.5, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    );
+
+    const logoGroup = new THREE.Group();
+    scene.add(logoGroup);
+
+    // ======================================================================
+    // ======================================================================
+    function rebuildMesh() {
+      // Clean up previous children
+      while (logoGroup.children.length > 0) {
+        const obj = logoGroup.children[0];
+        logoGroup.remove(obj);
+      }
+
+      // 1. Build Extrude geometries based on slider values
+      const extrudeLetter = { depth: CONFIG.letterDepth, bevelEnabled: false };
+      const lambdaGeo = new THREE.ExtrudeGeometry(shapeFrom(LAMBDA_POINTS), extrudeLetter);
+      const barGeo = new THREE.ExtrudeGeometry(shapeFrom(BAR_POINTS), extrudeLetter);
+      const vGeo = new THREE.ExtrudeGeometry(shapeFrom(V_POINTS), extrudeLetter);
+
+      const ringShape = new THREE.Shape();
+      ringShape.absarc(0, 0, CONFIG.ringOuter, 0, Math.PI * 2, false);
+      const ringHole = new THREE.Path();
+      ringHole.absarc(0, 0, CONFIG.ringInner, 0, Math.PI * 2, true);
+      ringShape.holes.push(ringHole);
+
+      const ringGeo = new THREE.ExtrudeGeometry(ringShape, { depth: CONFIG.ringDepth, bevelEnabled: false, curveSegments: 64 });
+
+      // Apply coordinates offset matrices
+      lambdaGeo.applyMatrix4(shearMatrix);
+      barGeo.applyMatrix4(shearMatrix);
+      vGeo.applyMatrix4(shearMatrix);
+      ringGeo.applyMatrix4(shearMatrix);
+
+      // Create letters group
+      const letters = new THREE.Group();
+      letters.position.x = CONFIG.lettersXOffset;
+
+      const addLetterPart = (geo, faceM, sideM, edgeM) => {
+        letters.add(new THREE.Mesh(geo, [faceM, sideM]));
+        letters.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), edgeM));
+      };
+
+      addLetterPart(lambdaGeo, greenFace, greenSide, greenEdge);
+      addLetterPart(barGeo, greenFace, greenSide, greenEdge);
+      addLetterPart(vGeo, purpleFace, purpleSide, purpleEdge);
+
+      logoGroup.add(letters);
+
+      // 2. Add outer Ring meshes
+      logoGroup.add(new THREE.Mesh(ringGeo, [greenFace, greenSide]));
+
+      // Precise loop curves for clean concentric circles (edgesGeometry looks rough on curves)
+      const circleLine = (r, z, mat) => {
+        const pts = [];
+        for (let i = 0; i <= 96; i++) {
+          const a = (i / 96) * Math.PI * 2;
+          pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, z));
+        }
+        const g = new THREE.BufferGeometry().setFromPoints(pts);
+        g.applyMatrix4(shearMatrix);
+        return new THREE.Line(g, mat);
+      };
+
+      [0, CONFIG.ringDepth].forEach((z) => {
+        logoGroup.add(circleLine(CONFIG.ringOuter, z, greenEdge));
+        logoGroup.add(circleLine(CONFIG.ringInner, z, purpleEdge));
+      });
+
+      logoGroup.scale.setScalar(CONFIG.scale);
+    }
+
+    rebuildMesh();
+
+    // ======================================================================
+    // ======================================================================
+    const sliders = {
+      scale: document.getElementById('scale'),
+      letterDepth: document.getElementById('letter-depth'),
+      ringDepth: document.getElementById('ring-depth'),
+      tilt: document.getElementById('tilt')
+    };
+
+    const setValText = (id, val) => {
+      document.getElementById(`${id}-val`).innerText = Number(val).toFixed(2);
+    };
+
+    sliders.scale.addEventListener('input', (e) => {
+      CONFIG.scale = parseFloat(e.target.value);
+      setValText('scale', CONFIG.scale);
+      rebuildMesh();
+    });
+
+    sliders.letterDepth.addEventListener('input', (e) => {
+      CONFIG.letterDepth = parseFloat(e.target.value);
+      setValText('letter-depth', CONFIG.letterDepth);
+      rebuildMesh();
+    });
+
+    sliders.ringDepth.addEventListener('input', (e) => {
+      CONFIG.ringDepth = parseFloat(e.target.value);
+      setValText('ring-depth', CONFIG.ringDepth);
+      rebuildMesh();
+    });
+
+    sliders.tilt.addEventListener('input', (e) => {
+      CONFIG.mouseFollow = parseFloat(e.target.value);
+      setValText('tilt', CONFIG.mouseFollow);
+    });
+
+    // Dynamic color updates
+    const colGreenInput = document.getElementById('color-green');
+    const colPurpleInput = document.getElementById('color-purple');
+
+    function hexToRgbHex(hexStr) {
+      return parseInt(hexStr.replace('#', '0x'), 16);
+    }
+
+    function hexToDarkened(hexStr, ratio = 0.1) {
+      // Shorthand function to darken colors for depth side faces
+      let c = parseInt(hexStr.replace('#', ''), 16);
+      let r = (c >> 16) & 255;
+      let g = (c >> 8) & 255;
+      let b = c & 255;
+      r = Math.floor(r * ratio);
+      g = Math.floor(g * ratio);
+      b = Math.floor(b * ratio);
+      return (r << 16) | (g << 8) | b;
+    }
+
+    function updateColors() {
+      const gHex = colGreenInput.value;
+      const pHex = colPurpleInput.value;
+
+      colGreenInput.nextElementSibling.innerText = gHex;
+      colPurpleInput.nextElementSibling.innerText = pHex;
+
+      greenEdge.color.setHex(hexToRgbHex(gHex));
+      purpleEdge.color.setHex(hexToRgbHex(pHex));
+
+      greenFace.color.setHex(hexToDarkened(gHex, 0.08));
+      greenSide.color.setHex(hexToDarkened(gHex, 0.02));
+
+      purpleFace.color.setHex(hexToDarkened(pHex, 0.08));
+      purpleSide.color.setHex(hexToDarkened(pHex, 0.02));
+    }
+
+    colGreenInput.addEventListener('input', updateColors);
+    colPurpleInput.addEventListener('input', updateColors);
+
+    // Dynamic Presets selector
+    window.applyPreset = function (presetName) {
+      if (presetName === 'sketch') {
+        colGreenInput.value = '#00ff41';
+        colPurpleInput.value = '#d24dff';
+      } else if (presetName === 'cyanide') {
+        colGreenInput.value = '#00f6ff';
+        colPurpleInput.value = '#00ff73';
+      } else if (presetName === 'cyber') {
+        colGreenInput.value = '#ff0055';
+        colPurpleInput.value = '#00f6ff';
+      } else if (presetName === 'monochrome') {
+        colGreenInput.value = '#ffffff';
+        colPurpleInput.value = '#6e6e6e';
+      }
+      updateColors();
+    };
+
+    // ======================================================================
+    // ======================================================================
+    const renderTarget = new THREE.WebGLRenderTarget(
+      window.innerWidth * pixelRatio,
+      window.innerHeight * pixelRatio
+    );
+    renderTarget.samples = 4;
+
+    const glitchUniforms = {
+      tDiffuse: { value: renderTarget.texture },
+      uIntensity: { value: 0 },
+      uSeed: { value: 0 },
+    };
+
+    const postMaterial = new THREE.ShaderMaterial({
+      uniforms: glitchUniforms,
+      vertexShader: GLITCH_VERT,
+      fragmentShader: GLITCH_FRAG,
+      depthTest: false,
+      depthWrite: false,
+      blending: THREE.NoBlending,
+      transparent: true,
+    });
+    const postScene = new THREE.Scene();
+    postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), postMaterial));
+    const postCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+    // ======================================================================
+    // ======================================================================
+    let mouseX = 0;
+    let mouseY = 0;
+    document.addEventListener('mousemove', (event) => {
+      mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    const G = CONFIG.glitch;
+    let glitchUntil = 0;
+    let nextGlitchAt = G.firstAt;
+    let nextReseedAt = 0;
+
+    const startBurst = (t) => {
+      glitchUntil = t + G.minDuration + Math.random() * (G.maxDuration - G.minDuration);
+      nextGlitchAt = t + G.minInterval + Math.random() * (G.maxInterval - G.minInterval);
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'g' || e.key === 'G') startBurst(clock.getElapsedTime());
+    });
+    document.getElementById('glitch-btn').addEventListener('click', () => {
+      startBurst(clock.getElapsedTime());
+    });
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      // Idle movement combined with slider mouse follow multiplier
+      const targetX = mouseY * CONFIG.mouseFollow + Math.sin(t * CONFIG.wobble.speedX) * CONFIG.wobble.x;
+      const targetY = mouseX * CONFIG.mouseFollow + Math.cos(t * CONFIG.wobble.speedY) * CONFIG.wobble.y;
+      
+      logoGroup.rotation.x += (targetX - logoGroup.rotation.x) * 0.06;
+      logoGroup.rotation.y += (targetY - logoGroup.rotation.y) * 0.06;
+
+      // Handle glitch frame events
+      if (t >= nextGlitchAt) startBurst(t);
+      if (t < glitchUntil) {
+        if (t >= nextReseedAt) {
+          glitchUniforms.uSeed.value = Math.random() * 100;
+          glitchUniforms.uIntensity.value = G.minIntensity + Math.random() * (G.maxIntensity - G.minIntensity);
+          nextReseedAt = t + G.reseedEvery[0] + Math.random() * (G.reseedEvery[1] - G.reseedEvery[0]);
+        }
+      } else {
+        glitchUniforms.uIntensity.value = 0;
+      }
+
+      renderer.setRenderTarget(renderTarget);
+      renderer.render(scene, camera);
+      renderer.setRenderTarget(null);
+      renderer.render(postScene, postCamera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      aspect = window.innerWidth / window.innerHeight;
+      camera.left = (-frustumSize * aspect) / 2;
+      camera.right = (frustumSize * aspect) / 2;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderTarget.setSize(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio);
+    });
+  </script>
+</body>
+
+</html>

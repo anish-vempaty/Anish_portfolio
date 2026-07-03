@@ -1,13 +1,57 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { getAvConfig } from "../avConfig";
 
 // Interactive 3D "AV" emblem rendered behind the page content (OSIRIS-lab style).
-// Geometry modeled after the hand-drawn logo: a slanted A with an extended
-// crossbar, interlocked with a tall checkmark V, inside a double-line ring.
-// The scene renders into a texture, then through a screen-space glitch shader
-// that periodically shatters the image into displaced slices and blocks.
-const GREEN = 0x00ff41;
-const PURPLE = 0xd24dff;
+// Geometry and defaults come from logo-playground.html (2026-07-03 redesign):
+// the A's left leg bends into the crossbar, the checkmark V climbs to the ring.
+// The scene renders into a texture, then through a screen-space glitch shader.
+// Live-tunable via the hidden DebugPanel ("av-config" / "av-glitch" events).
+
+// Face/side colors for the default strokes (hand-tuned in the playground);
+// other stroke colors fall back to derived darkening.
+const DEFAULT_FACES = {
+  "#00ff41": [0x051a09, 0x010702],
+  "#d24dff": [0x14041c, 0x050107],
+};
+
+const darken = (hex, ratio) => {
+  const c = parseInt(hex.slice(1), 16);
+  const r = Math.floor(((c >> 16) & 255) * ratio);
+  const g = Math.floor(((c >> 8) & 255) * ratio);
+  const b = Math.floor((c & 255) * ratio);
+  return (r << 16) | (g << 8) | b;
+};
+
+// 2D outlines in logo units (origin = ring center, +y up), extruded to 3D.
+// Uniform 1.5-unit stroke thickness with matched slopes.
+
+// Triangular apex "Λ" at the top of the A
+const LAMBDA_POINTS = [
+  [-3.0, 7.5], [-2.0, 7.5],
+  [1.0, 1.5], [-0.5, 1.5],
+  [-2.5, 5.5],
+  [-4.5, 1.5], [-6.0, 1.5],
+];
+
+// Left sloping leg bending into the horizontal crossbar of the A
+const BAR_POINTS = [
+  [-7.0, -0.5], [3.5, -0.5],
+  [3.5, -2.5], [-6.5, -2.5],
+  [-9.0, -7.5], [-10.5, -7.5],
+];
+
+// Stylized V — starts under the crossbar's right tip, climbs to the ring
+const V_POINTS = [
+  [2.0, -3.5], [3.5, -3.5],
+  [4.5, -5.5],
+  [11.5, 8.5], [13.0, 8.5],
+  [4.5, -8.5],
+];
+
+const LETTERS_X_OFFSET = -1.25;
+const RING_OUTER = 15;
+const RING_INNER = 13.2;
 
 const GLITCH_VERT = /* glsl */ `
   varying vec2 vUv;
@@ -35,29 +79,28 @@ const GLITCH_FRAG = /* glsl */ `
 
     vec2 uv = vUv;
 
-    // Horizontal band tearing: random rows shear sideways
-    float bandCount = mix(8.0, 28.0, rand(vec2(uSeed, 1.0)));
+    // Band tearing displacement
+    float bandCount = mix(8.0, 32.0, rand(vec2(uSeed, 1.0)));
     float band = floor(uv.y * bandCount);
-    float tear = step(0.55, rand(vec2(band, uSeed)));
-    uv.x += tear * (rand(vec2(band, uSeed + 1.0)) - 0.5) * 0.4 * uIntensity;
+    float tear = step(0.6, rand(vec2(band, uSeed)));
+    uv.x += tear * (rand(vec2(band, uSeed + 1.2)) - 0.5) * 0.3 * uIntensity;
 
-    // Block displacement: coarse grid cells jump to offset positions
-    vec2 cell = floor(uv * vec2(9.0, 6.0));
+    // Fine grid/block fragmentation
+    vec2 cell = floor(uv * vec2(12.0, 8.0));
     float cellRand = rand(cell + uSeed);
-    if (cellRand > 0.75) {
-      uv += (vec2(rand(cell + uSeed + 1.0), rand(cell + uSeed + 2.0)) - 0.5) * 0.25 * uIntensity;
+    if (cellRand > 0.8) {
+      uv += (vec2(rand(cell + uSeed + 1.0), rand(cell + uSeed + 2.0)) - 0.5) * 0.2 * uIntensity;
     }
 
-    // Chromatic tearing: sample channels at split offsets
-    float shift = 0.012 * uIntensity;
+    // Chromatic split
+    float shift = 0.015 * uIntensity;
     vec4 cr = texture2D(tDiffuse, uv + vec2(shift, 0.0));
     vec4 cg = texture2D(tDiffuse, uv);
     vec4 cb = texture2D(tDiffuse, uv - vec2(shift, 0.0));
     vec4 col = vec4(cr.r, cg.g, cb.b, max(cg.a, max(cr.a, cb.a)));
 
-    // Some blocks flip green<->purple for the corrupted-signal look
-    if (cellRand > 0.85) {
-      col.rgb = col.rgb.brg;
+    if (cellRand > 0.9) {
+      col.rgb = col.rgb.gbr;
     }
 
     gl_FragColor = col;
@@ -69,6 +112,7 @@ export default function BackgroundAV() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    let cfg = getAvConfig();
 
     const scene = new THREE.Scene();
     const frustumSize = 40;
@@ -89,19 +133,30 @@ export default function BackgroundAV() {
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.75));
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.5);
     keyLight.position.set(0, 5, 10);
     scene.add(keyLight);
 
-    // Green set (A + ring outer), purple set (V + ring inner)
-    const greenFace = new THREE.MeshLambertMaterial({ color: 0x0e2415 });
-    const greenSide = new THREE.MeshLambertMaterial({ color: 0x06120a });
-    const purpleFace = new THREE.MeshLambertMaterial({ color: 0x1a0b22 });
-    const purpleSide = new THREE.MeshLambertMaterial({ color: 0x0d0512 });
-    const greenEdge = new THREE.LineBasicMaterial({ color: GREEN, transparent: true, opacity: 0.9 });
-    const purpleEdge = new THREE.LineBasicMaterial({ color: PURPLE, transparent: true, opacity: 0.9 });
+    const greenFace = new THREE.MeshLambertMaterial();
+    const greenSide = new THREE.MeshLambertMaterial();
+    const purpleFace = new THREE.MeshLambertMaterial();
+    const purpleSide = new THREE.MeshLambertMaterial();
+    const greenEdge = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.9 });
+    const purpleEdge = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.9 });
     const allMats = [greenFace, greenSide, purpleFace, purpleSide, greenEdge, purpleEdge];
+
+    const applyStroke = (hex, edgeMat, faceMat, sideMat) => {
+      edgeMat.color.set(hex);
+      const preset = DEFAULT_FACES[hex.toLowerCase()];
+      faceMat.color.setHex(preset ? preset[0] : darken(hex, 0.08));
+      sideMat.color.setHex(preset ? preset[1] : darken(hex, 0.02));
+    };
+    const applyColors = () => {
+      applyStroke(cfg.green, greenEdge, greenFace, greenSide);
+      applyStroke(cfg.purple, purpleEdge, purpleFace, purpleSide);
+    };
+    applyColors();
 
     const shapeFrom = (pts) => {
       const s = new THREE.Shape();
@@ -111,32 +166,6 @@ export default function BackgroundAV() {
       return s;
     };
 
-    // "Λ" of the A — two slanted legs meeting at the apex
-    const lambdaShape = shapeFrom([
-      [-3.6, 7.5], [-1.4, 7.5], [3.2, -6.5], [1.0, -6.5],
-      [-2.5, 3.9], [-6.0, -6.5], [-8.2, -6.5],
-    ]);
-
-    // Crossbar of the A, extending right past the leg toward the V
-    const barShape = shapeFrom([
-      [-6.9, -1.6], [4.8, -1.6], [4.8, -3.6], [-6.9, -3.6],
-    ]);
-
-    // Checkmark V — short stroke down, long stroke sweeping up to the ring
-    const vShape = shapeFrom([
-      [0.6, 0.2], [2.8, 1.2], [5.5, -5.2], [8.6, 8.2],
-      [10.8, 8.8], [5.4, -8.3],
-    ]);
-
-    // Surrounding ring
-    const RING_OUTER = 15;
-    const RING_INNER = 13.2;
-    const ringShape = new THREE.Shape();
-    ringShape.absarc(0, 0, RING_OUTER, 0, Math.PI * 2, false);
-    const ringHole = new THREE.Path();
-    ringHole.absarc(0, 0, RING_INNER, 0, Math.PI * 2, true);
-    ringShape.holes.push(ringHole);
-
     // Shear the extrusion down-left for the isometric look
     const shearMatrix = new THREE.Matrix4().set(
       1, 0, -0.6, 0,
@@ -145,54 +174,72 @@ export default function BackgroundAV() {
       0, 0, 0, 1
     );
 
-    const extrudeLetter = { depth: 4, bevelEnabled: false };
-    const geos = {
-      lambda: new THREE.ExtrudeGeometry(lambdaShape, extrudeLetter),
-      bar: new THREE.ExtrudeGeometry(barShape, extrudeLetter),
-      v: new THREE.ExtrudeGeometry(vShape, extrudeLetter),
-      ring: new THREE.ExtrudeGeometry(ringShape, { depth: 2.5, bevelEnabled: false, curveSegments: 64 }),
-    };
-    Object.values(geos).forEach((g) => g.applyMatrix4(shearMatrix));
-
     const logoGroup = new THREE.Group();
-    const disposables = Object.values(geos);
-
-    // Letters: mesh + hard edge lines, nudged so the monogram centers in the ring
-    const letters = new THREE.Group();
-    letters.position.x = -1.3;
-    const addLetter = (geo, faceM, sideM, edgeM) => {
-      letters.add(new THREE.Mesh(geo, [faceM, sideM]));
-      const edges = new THREE.EdgesGeometry(geo, 20);
-      disposables.push(edges);
-      letters.add(new THREE.LineSegments(edges, edgeM));
-    };
-    addLetter(geos.lambda, greenFace, greenSide, greenEdge);
-    addLetter(geos.bar, greenFace, greenSide, greenEdge);
-    addLetter(geos.v, purpleFace, purpleSide, purpleEdge);
-    logoGroup.add(letters);
-
-    // Ring: mesh + four clean circle outlines (EdgesGeometry is too noisy on curves).
-    // Outer circles green, inner circles purple for the two-tone look.
-    logoGroup.add(new THREE.Mesh(geos.ring, [greenFace, greenSide]));
-    const circleLine = (r, z, mat) => {
-      const pts = [];
-      for (let i = 0; i <= 96; i++) {
-        const a = (i / 96) * Math.PI * 2;
-        pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, z));
-      }
-      const g = new THREE.BufferGeometry().setFromPoints(pts);
-      g.applyMatrix4(shearMatrix);
-      disposables.push(g);
-      return new THREE.Line(g, mat);
-    };
-    [0, 2.5].forEach((z) => {
-      logoGroup.add(circleLine(RING_OUTER, z, greenEdge));
-      logoGroup.add(circleLine(RING_INNER, z, purpleEdge));
-    });
-
-    const BASE_SCALE = 1.1; // ring nearly fills the viewport height
-    logoGroup.scale.setScalar(BASE_SCALE);
     scene.add(logoGroup);
+
+    // Geometry is rebuilt when extrusion depths change in the debug panel
+    let buildGeos = [];
+    const rebuildLogo = () => {
+      while (logoGroup.children.length > 0) logoGroup.remove(logoGroup.children[0]);
+      buildGeos.forEach((g) => g.dispose());
+      buildGeos = [];
+
+      const extrudeLetter = { depth: cfg.letterDepth, bevelEnabled: false };
+      const letterGeos = [LAMBDA_POINTS, BAR_POINTS, V_POINTS].map((pts) =>
+        new THREE.ExtrudeGeometry(shapeFrom(pts), extrudeLetter)
+      );
+
+      const ringShape = new THREE.Shape();
+      ringShape.absarc(0, 0, RING_OUTER, 0, Math.PI * 2, false);
+      const ringHole = new THREE.Path();
+      ringHole.absarc(0, 0, RING_INNER, 0, Math.PI * 2, true);
+      ringShape.holes.push(ringHole);
+      const ringGeo = new THREE.ExtrudeGeometry(ringShape, {
+        depth: cfg.ringDepth, bevelEnabled: false, curveSegments: 64,
+      });
+
+      [...letterGeos, ringGeo].forEach((g) => {
+        g.applyMatrix4(shearMatrix);
+        buildGeos.push(g);
+      });
+
+      const letters = new THREE.Group();
+      letters.position.x = LETTERS_X_OFFSET;
+      const letterMats = [
+        [greenFace, greenSide, greenEdge],
+        [greenFace, greenSide, greenEdge],
+        [purpleFace, purpleSide, purpleEdge],
+      ];
+      letterGeos.forEach((geo, i) => {
+        const [faceM, sideM, edgeM] = letterMats[i];
+        letters.add(new THREE.Mesh(geo, [faceM, sideM]));
+        const edges = new THREE.EdgesGeometry(geo, 20);
+        buildGeos.push(edges);
+        letters.add(new THREE.LineSegments(edges, edgeM));
+      });
+      logoGroup.add(letters);
+
+      // Ring: mesh + four clean circle outlines (EdgesGeometry is too noisy on curves)
+      logoGroup.add(new THREE.Mesh(ringGeo, [greenFace, greenSide]));
+      const circleLine = (r, z, mat) => {
+        const pts = [];
+        for (let i = 0; i <= 96; i++) {
+          const a = (i / 96) * Math.PI * 2;
+          pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, z));
+        }
+        const g = new THREE.BufferGeometry().setFromPoints(pts);
+        g.applyMatrix4(shearMatrix);
+        buildGeos.push(g);
+        return new THREE.Line(g, mat);
+      };
+      [0, cfg.ringDepth].forEach((z) => {
+        logoGroup.add(circleLine(RING_OUTER, z, greenEdge));
+        logoGroup.add(circleLine(RING_INNER, z, purpleEdge));
+      });
+
+      logoGroup.scale.setScalar(cfg.scale);
+    };
+    rebuildLogo();
 
     // --- Glitch post-processing: scene -> texture -> glitch shader -> screen ---
     const renderTarget = new THREE.WebGLRenderTarget(
@@ -200,7 +247,6 @@ export default function BackgroundAV() {
       window.innerHeight * pixelRatio
     );
     renderTarget.samples = 4; // MSAA in the render target (WebGL2)
-    disposables.push(renderTarget);
 
     const glitchUniforms = {
       tDiffuse: { value: renderTarget.texture },
@@ -216,9 +262,8 @@ export default function BackgroundAV() {
       blending: THREE.NoBlending,
       transparent: true,
     });
-    const postGeo = new THREE.PlaneGeometry(2, 2);
-    disposables.push(postGeo);
     allMats.push(postMaterial);
+    const postGeo = new THREE.PlaneGeometry(2, 2);
     const postScene = new THREE.Scene();
     postScene.add(new THREE.Mesh(postGeo, postMaterial));
     const postCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -232,30 +277,44 @@ export default function BackgroundAV() {
 
     // Glitch bursts: every few seconds the image shatters for ~0.3-0.6s,
     // re-randomizing the slice pattern every few frames while it lasts.
+    const GLITCH = { minInterval: 4, maxInterval: 8.5, minDuration: 0.3, maxDuration: 0.6, minIntensity: 0.4, maxIntensity: 1.0 };
     let glitchUntil = 0;
     let nextGlitchAt = 2.5;
     let nextReseedAt = 0;
-
     const clock = new THREE.Clock();
+
+    const startBurst = (t) => {
+      glitchUntil = t + GLITCH.minDuration + Math.random() * (GLITCH.maxDuration - GLITCH.minDuration);
+      nextGlitchAt = t + GLITCH.minInterval + Math.random() * (GLITCH.maxInterval - GLITCH.minInterval);
+    };
+
+    // Live updates from the hidden debug panel
+    const onConfig = (e) => {
+      const next = e.detail;
+      const needsRebuild = next.letterDepth !== cfg.letterDepth || next.ringDepth !== cfg.ringDepth;
+      cfg = next;
+      applyColors();
+      logoGroup.scale.setScalar(cfg.scale);
+      if (needsRebuild) rebuildLogo();
+    };
+    const onGlitchEvent = () => startBurst(clock.getElapsedTime());
+
     let rafId;
     const animate = () => {
       rafId = requestAnimationFrame(animate);
       const t = clock.getElapsedTime();
 
       // The model itself stays calm — mouse tracking + idle wobble only
-      const targetX = mouseY * 0.25 + Math.sin(t * 0.5) * 0.1;
-      const targetY = mouseX * 0.25 + Math.cos(t * 0.35) * 0.14;
+      const targetX = mouseY * cfg.tilt + Math.sin(t * 0.5) * 0.1;
+      const targetY = mouseX * cfg.tilt + Math.cos(t * 0.35) * 0.14;
       logoGroup.rotation.x += (targetX - logoGroup.rotation.x) * 0.06;
       logoGroup.rotation.y += (targetY - logoGroup.rotation.y) * 0.06;
 
-      if (t >= nextGlitchAt) {
-        glitchUntil = t + 0.3 + Math.random() * 0.3;
-        nextGlitchAt = t + 3 + Math.random() * 4.5;
-      }
+      if (t >= nextGlitchAt) startBurst(t);
       if (t < glitchUntil) {
         if (t >= nextReseedAt) {
           glitchUniforms.uSeed.value = Math.random() * 100;
-          glitchUniforms.uIntensity.value = 0.4 + Math.random() * 0.6;
+          glitchUniforms.uIntensity.value = GLITCH.minIntensity + Math.random() * (GLITCH.maxIntensity - GLITCH.minIntensity);
           nextReseedAt = t + 0.05 + Math.random() * 0.07;
         }
       } else {
@@ -284,6 +343,8 @@ export default function BackgroundAV() {
 
     window.addEventListener("resize", onResize);
     window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("av-config", onConfig);
+    window.addEventListener("av-glitch", onGlitchEvent);
     document.addEventListener("visibilitychange", onVisibility);
     animate();
 
@@ -291,8 +352,12 @@ export default function BackgroundAV() {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("av-config", onConfig);
+      window.removeEventListener("av-glitch", onGlitchEvent);
       document.removeEventListener("visibilitychange", onVisibility);
-      disposables.forEach((g) => g.dispose());
+      buildGeos.forEach((g) => g.dispose());
+      postGeo.dispose();
+      renderTarget.dispose();
       allMats.forEach((m) => m.dispose());
       renderer.dispose();
     };

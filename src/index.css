@@ -165,6 +165,8 @@ body {
   bottom: 136px;
   z-index: 90;
   width: 250px;
+  max-height: calc(100vh - 170px);
+  overflow-y: auto;
   background: rgba(12, 15, 10, 0.96);
   border: 1px solid rgba(0, 255, 65, 0.35);
   border-radius: 12px;
@@ -172,6 +174,48 @@ body {
   color: var(--light-gray);
   font-size: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.debug-panel .debug-section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.debug-colors {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.debug-colors label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+}
+
+.debug-colors input[type="color"] {
+  width: 30px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+.debug-glitch {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 7px 0;
+  text-align: center;
+  color: var(--smoky-black);
+  background: var(--matrix-green-gradient);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .debug-panel h4 {
