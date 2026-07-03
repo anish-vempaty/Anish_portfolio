@@ -205,6 +205,49 @@ body {
   cursor: pointer;
 }
 
+.debug-note {
+  color: var(--light-gray-70);
+  font-size: 10px;
+  margin: 4px 0 8px;
+  line-height: 1.4;
+}
+
+.debug-presets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.debug-presets button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: var(--light-gray);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  transition: var(--transition-1);
+}
+
+.debug-presets button:hover {
+  border-color: rgba(0, 255, 65, 0.4);
+  color: var(--white-2);
+}
+
+.debug-presets button.active {
+  border-color: var(--matrix-green);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.35);
+}
+
+.debug-presets .swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
 .debug-glitch {
   display: block;
   width: 100%;

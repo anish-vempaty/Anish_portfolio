@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { AV_DEFAULTS, getAvConfig, setAvConfig, triggerAvGlitch } from '../avConfig';
+import { AV_PRESETS, getAvConfig, setAvConfig, clearAvConfig, triggerAvGlitch } from '../avConfig';
 
 // Hidden tuning panel for the background emblem + card translucency.
 // Not visible to visitors: activate with Ctrl+Shift+X, or by adding ?debug to the URL.
-// Values persist in localStorage and override the defaults on this browser only.
+// Values persist in localStorage ONLY when changed here, and override the
+// defaults on this browser alone. With no overrides stored, the logo colors
+// are a random preset per page load.
 const DEFAULTS = { alpha: 0.4, blur: 2, logo: 0.9 };
 const STORAGE_KEY = 'debug-translucency';
 
@@ -32,23 +34,41 @@ export default function DebugPanel() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // Apply translucency to CSS (persistence happens only in the change handlers)
   useEffect(() => {
     const root = document.documentElement.style;
     root.setProperty('--card-alpha', vals.alpha);
     root.setProperty('--card-blur', `${vals.blur}px`);
     root.setProperty('--av-opacity', vals.logo);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(vals));
   }, [vals]);
-
-  useEffect(() => {
-    setAvConfig(av);
-  }, [av]);
 
   if (!enabled) return null;
 
-  const set = (key) => (e) => setVals((v) => ({ ...v, [key]: Number(e.target.value) }));
-  const setLogo = (key, isNumber = true) => (e) =>
-    setAv((v) => ({ ...v, [key]: isNumber ? Number(e.target.value) : e.target.value }));
+  const set = (key) => (e) => {
+    setVals((v) => {
+      const next = { ...v, [key]: Number(e.target.value) };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const setLogo = (key, isNumber = true) => (e) => {
+    const next = { ...av, [key]: isNumber ? Number(e.target.value) : e.target.value };
+    setAv(next);
+    setAvConfig(next);
+  };
+
+  const applyPreset = (preset) => {
+    const next = { ...av, green: preset.green, purple: preset.purple };
+    setAv(next);
+    setAvConfig(next);
+  };
+
+  const resetAll = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setVals(DEFAULTS);
+    setAv(clearAvConfig()); // back to defaults + random preset per load
+  };
 
   return (
     <>
@@ -119,15 +139,28 @@ export default function DebugPanel() {
             </label>
           </div>
 
+          <h4 className="debug-section">Color presets</h4>
+          <p className="debug-note">Visitors get a random preset each load; picking one here pins it.</p>
+          <div className="debug-presets">
+            {AV_PRESETS.map((p) => (
+              <button
+                key={p.name}
+                className={av.green === p.green && av.purple === p.purple ? 'active' : ''}
+                onClick={() => applyPreset(p)}
+              >
+                <span className="swatch" style={{ background: p.green }} />
+                <span className="swatch" style={{ background: p.purple }} />
+                {p.name}
+              </button>
+            ))}
+          </div>
+
           <button className="debug-glitch" onClick={triggerAvGlitch}>
             ⚡ Trigger glitch
           </button>
 
-          <button
-            className="debug-reset"
-            onClick={() => { setVals(DEFAULTS); setAv({ ...AV_DEFAULTS }); }}
-          >
-            Reset to defaults
+          <button className="debug-reset" onClick={resetAll}>
+            Reset to defaults (unpin)
           </button>
         </div>
       )}
