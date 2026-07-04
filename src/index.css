@@ -25,7 +25,8 @@
   --light-gray-70: rgba(202, 202, 202, 0.7);
 
   /* Typography */
-  --ff-poppins: 'Poppins', sans-serif;
+  --ff-body: 'Space Grotesk', 'Poppins', sans-serif;
+  --ff-mono: 'Share Tech Mono', 'JetBrains Mono', monospace;
   --ff-pixel: 'Pixelify Sans', 'Press Start 2P', monospace;
   --heading-purple: #cf6bff;
   --heading-glow: 0 0 14px rgba(187, 0, 255, 0.4);
@@ -111,7 +112,7 @@ textarea {
 }
 
 html {
-  font-family: var(--ff-poppins);
+  font-family: var(--ff-body);
 }
 
 body {
@@ -249,11 +250,13 @@ body {
 }
 
 .debug-glitch {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   width: 100%;
   margin-top: 14px;
   padding: 7px 0;
-  text-align: center;
   color: var(--smoky-black);
   background: var(--matrix-green-gradient);
   border-radius: 8px;
@@ -486,8 +489,10 @@ main {
 .info-content .title {
   color: var(--white-1);
   background: var(--onyx);
+  font-family: var(--ff-mono);
   font-size: var(--fs-8);
   font-weight: var(--fw-300);
+  letter-spacing: 0.5px;
   width: max-content;
   padding: 3px 12px;
   border-radius: 8px;
@@ -560,13 +565,13 @@ main {
   border-radius: 12px;
   padding: 4px 13px 4px 10px;
   margin: 6px 0 0 0;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 600;
   letter-spacing: 0.7px;
   box-shadow: 0 0 7px 1px #00ff4190;
   transition: background 0.28s;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .sidebar .status:hover {
@@ -617,8 +622,10 @@ main {
 
 .contact-title {
   color: var(--light-gray-70);
+  font-family: var(--ff-mono);
   font-size: var(--fs-8);
   text-transform: uppercase;
+  letter-spacing: 1px;
   margin-bottom: 2px;
 }
 
@@ -1028,6 +1035,7 @@ main {
 
 .timeline-list span {
   color: var(--matrix-green);
+  font-family: var(--ff-mono);
   font-weight: var(--fw-400);
   line-height: 1.6;
 }
@@ -1112,6 +1120,7 @@ main {
 
 .filter-item button {
   color: var(--light-gray);
+  font-family: var(--ff-mono);
   font-size: var(--fs-6);
   padding: 6px 16px;
   border: 1px solid var(--jet);
@@ -1313,8 +1322,10 @@ main {
 
 .project-category {
   color: rgba(159, 255, 166, 0.75);
+  font-family: var(--ff-mono);
   font-size: var(--fs-7);
   font-weight: var(--fw-400);
+  letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
 
@@ -2327,9 +2338,12 @@ textarea.form-input::-webkit-resizer {
     width: 150px;
   }
 
+  .info-content {
+    text-align: center;
+  }
+
   .info-content .name {
     white-space: nowrap;
-    text-align: center;
   }
 
   .info-content .title {

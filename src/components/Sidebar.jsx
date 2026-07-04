@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import photo from '../assets/images/Photo.jpg';
-import { ChevronDown, Mail, Phone, Linkedin, Github, FileText } from 'lucide-react';
+import { ChevronDown, Mail, Phone, Linkedin, Github, Rocket } from 'lucide-react';
 
 export default function Sidebar() {
   const [isActive, setIsActive] = useState(false);
@@ -15,7 +15,7 @@ export default function Sidebar() {
           <h1 className="name" title="Anish Vempaty">Anish Vempaty</h1>
           <p className="title">Cybersecurity Engineer</p>
           <p className="tagline">M.S. Cybersecurity, NYU</p>
-          <p className="status">🚀 Open to Work</p>
+          <p className="status"><Rocket size={14} /> Open to Work</p>
         </div>
 
         <button className="info_more-btn" onClick={() => setIsActive(!isActive)} data-sidebar-btn>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Mail, Phone, Linkedin, Github, FileText } from 'lucide-react';
 
 export default function Contact({ show }) {
   return (
@@ -17,7 +18,7 @@ export default function Contact({ show }) {
         <ul className="contacts-list">
           <li className="contact-item">
             <div className="icon-box">
-              <span role="img" aria-label="email">📧</span>
+              <Mail size={18} aria-label="Email" />
             </div>
             <div className="contact-info">
               <p className="contact-title">Email</p>
@@ -26,7 +27,7 @@ export default function Contact({ show }) {
           </li>
           <li className="contact-item">
             <div className="icon-box">
-              <span role="img" aria-label="phone">📱</span>
+              <Phone size={18} aria-label="Phone" />
             </div>
             <div className="contact-info">
               <p className="contact-title">Phone</p>
@@ -35,7 +36,7 @@ export default function Contact({ show }) {
           </li>
           <li className="contact-item">
             <div className="icon-box">
-              <span role="img" aria-label="linkedin">🔗</span>
+              <Linkedin size={18} aria-label="LinkedIn" />
             </div>
             <div className="contact-info">
               <p className="contact-title">LinkedIn</p>
@@ -46,7 +47,7 @@ export default function Contact({ show }) {
           </li>
           <li className="contact-item">
             <div className="icon-box">
-              <span role="img" aria-label="github">💻</span>
+              <Github size={18} aria-label="GitHub" />
             </div>
             <div className="contact-info">
               <p className="contact-title">GitHub</p>
@@ -57,7 +58,7 @@ export default function Contact({ show }) {
           </li>
           <li className="contact-item">
             <div className="icon-box">
-              <span role="img" aria-label="resume">📄</span>
+              <FileText size={18} aria-label="Resume" />
             </div>
             <div className="contact-info">
               <p className="contact-title">Resume</p>

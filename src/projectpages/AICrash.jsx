@@ -102,7 +102,7 @@ def save_clip(frames, filename='crash_clip.avi'):
         <pre>{`
 if detect_crash(frame):
     save_clip(list(buffer))
-    print("⚠️ Accident detected! Clip saved.")
+    print("[!] Accident detected! Clip saved.")
     send_email_alert("Accident detected!", "See attached video.")
 `}</pre>
         <h3>Result</h3>

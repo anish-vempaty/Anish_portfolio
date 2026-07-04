@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { SlidersHorizontal, X, Zap } from 'lucide-react';
 import { AV_PRESETS, getAvConfig, setAvConfig, clearAvConfig, triggerAvGlitch } from '../avConfig';
 
 // Hidden tuning panel for the background emblem + card translucency.
@@ -78,7 +79,7 @@ export default function DebugPanel() {
         title="Debug panel"
         aria-label="Toggle debug panel"
       >
-        {open ? '✕' : '🎛'}
+        {open ? <X size={18} /> : <SlidersHorizontal size={18} />}
       </button>
       {open && (
         <div className="debug-panel">
@@ -156,7 +157,7 @@ export default function DebugPanel() {
           </div>
 
           <button className="debug-glitch" onClick={triggerAvGlitch}>
-            ⚡ Trigger glitch
+            <Zap size={14} /> Trigger glitch
           </button>
 
           <button className="debug-reset" onClick={resetAll}>

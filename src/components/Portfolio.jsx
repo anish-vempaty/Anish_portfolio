@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Eye } from 'lucide-react';
 
 const projects = [
   { title: 'RISC-V C910 Redesign for x86 Compatibility', category: 'Hardware / Systems', group: 'Systems', img: 'assets/images/covers/riscv-c910.svg', description: 'Modified the C910 core\'s ALU and decode logic in Verilog, running x86-targeted workloads ~40% faster in QEMU co-simulation.', route: '/projects/riscv-c910' },
@@ -94,7 +95,7 @@ function ProjectCard({ p }) {
   return (
     <>
       <figure className="project-img">
-        <div className="project-item-icon-box"><span role="img" aria-label="eye">👁️</span></div>
+        <div className="project-item-icon-box"><Eye size={22} aria-label="View project" /></div>
         <img src={p.img} alt={p.title} loading="lazy" />
       </figure>
       <h3 className="project-title">{p.title}</h3>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { GraduationCap, Briefcase, ScrollText } from 'lucide-react';
 
 export default function Resume({ show }) {
   return (
@@ -9,7 +10,7 @@ export default function Resume({ show }) {
       <section className="timeline">
         <div className="title-wrapper">
           <div className="icon-box">
-            <span role="img" aria-label="Education">🎓</span>
+            <GraduationCap size={20} aria-label="Education" />
           </div>
           <h3 className="h3">Education</h3>
         </div>
@@ -30,7 +31,7 @@ export default function Resume({ show }) {
       <section className="timeline">
         <div className="title-wrapper">
           <div className="icon-box">
-            <span role="img" aria-label="Experience">💼</span>
+            <Briefcase size={20} aria-label="Experience" />
           </div>
           <h3 className="h3">Experience</h3>
         </div>
@@ -82,7 +83,7 @@ export default function Resume({ show }) {
       <section className="timeline">
         <div className="title-wrapper">
           <div className="icon-box">
-            <span role="img" aria-label="Certifications">📜</span>
+            <ScrollText size={20} aria-label="Certifications" />
           </div>
           <h3 className="h3">Certifications</h3>
         </div>
